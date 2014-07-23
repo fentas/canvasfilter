@@ -19,17 +19,17 @@ http://stackoverflow.com/questions/9972049/cross-origin-data-in-html5-canvas
 
   // construct
   // --------------------------
-  function cfilter(context) {
+  function canvasFilter(context) {
     // is initialized object?
-    if ( ! this instanceof cfilter )
-      return new cfilter(context);
+    if ( ! this instanceof canvasFilter )
+      return new canvasFilter(context);
 
     var context = context || document.createElement('canvas').getContext('2d');
     if ( context instanceof HTMLCanvasElement )
       context = context.getContext('2d');
 
     if ( ! context instanceof CanvasRenderingContext2D )
-      throw Error('[cfilter] first argument has to be an instance of CanvasRenderingContext2D or HTMLCanvasElement');
+      throw Error('[canvasFilter] first argument has to be an instance of CanvasRenderingContext2D or HTMLCanvasElement');
 
     // set context
     this._ = context;
@@ -41,7 +41,7 @@ http://stackoverflow.com/questions/9972049/cross-origin-data-in-html5-canvas
 
   // public
   // --------------------------
-  cfilter.prototype = {
+  canvasFilter.prototype = {
     getPixels: function() {
       return this._.getImageData(0, 0, this._.canvas.width, this._.canvas.height);
     },
@@ -73,7 +73,7 @@ http://stackoverflow.com/questions/9972049/cross-origin-data-in-html5-canvas
   HTMLCanvasElement.prototype.getContext = (function(_super) {
     return function() {
       var context = _super.apply(this, arguments);
-      context.filter = new cfilter(context);
+      context.filter = new canvasFilter(context);
 
       return context;
     };

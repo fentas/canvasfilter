@@ -1,2 +1,2 @@
-cfilter
+canvasFilter.js
 =======
