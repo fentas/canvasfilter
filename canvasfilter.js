@@ -45,9 +45,51 @@ http://stackoverflow.com/questions/9972049/cross-origin-data-in-html5-canvas
     getPixels: function() {
       return this._.getImageData(0, 0, this._.canvas.width, this._.canvas.height);
     },
+    getBilinearSample: function (x, y, px) {
+      var pixels = this.getPixels(),
+          x1 = Math.floor(x), x2 = Math.ceil(x),
+          y1 = Math.floor(y), y2 = Math.ceil(y),
+          a = ( x1 + pixels.width * y1 ) * 4,
+          b = ( x2 + pixels.width * y1 ) * 4,
+          c = ( x1 + pixels.width * y2 ) * 4,
+          d = ( x2 + pixels.width * y2 ) * 4,
+          df = ((x - x1) + (y - y1)),
+          cf = ((x2 - x) + (y - y1)),
+          bf = ((x - x1) + (y2 - y)),
+          af = ((x2 - x) + (y2 - y)),
+          rsum = 1 / ( af + bf + cf + df ),
+          data = pixels.data,
+          rgba = px || this._.createImageData(1, 1).data;
 
+      af *= rsum;
+      bf *= rsum;
+      cf *= rsum;
+      df *= rsum;
+      rgba[0] = data[a]*af + data[b]*bf + data[c]*cf + data[d]*df;
+      rgba[1] = data[a+1]*af + data[b+1]*bf + data[c+1]*cf + data[d+1]*df;
+      rgba[2] = data[a+2]*af + data[b+2]*bf + data[c+2]*cf + data[d+2]*df;
+      rgba[3] = data[a+3]*af + data[b+3]*bf + data[c+3]*cf + data[d+3]*df;
+
+      return rgba;
+    },
     // simple pixel function
     // --------------------------
+    /*
+    identity: function() {
+      var pixels = this.getPixels(),
+          output = this._.createImageData(pixels.width, pixels.height),
+          pdata = pixels.data,
+          idata = output.data;
+
+      for (var i = 0; i < pdata.length; i++) {
+        idata[i] = pdata[i];
+      }
+
+      this._.putImageData(output, 0, 0);
+      // return output?
+      return this;
+    },
+    */
     flipHorizontal: function() {
       var pixels = this.getPixels(),
           output = this._.createImageData(pixels.width, pixels.height),
@@ -80,11 +122,11 @@ http://stackoverflow.com/questions/9972049/cross-origin-data-in-html5-canvas
       for ( var y = 0; y < h; y++ ) {
         for ( var x = 0; x < w; x++ ) {
           var pOff = ( y * w + x ) * 4;
-          var dOff = ( ( h - y - 1 ) * w + x ) * 4;
-          idata[dOff]   = pdata[pOff];
-          idata[dOff+1] = pdata[pOff+1];
-          idata[dOff+2] = pdata[pOff+2];
-          idata[dOff+3] = pdata[pOff+3];
+          var iOff = ( ( h - y - 1 ) * w + x ) * 4;
+          idata[iOff]   = pdata[pOff];
+          idata[iOff+1] = pdata[pOff+1];
+          idata[iOff+2] = pdata[pOff+2];
+          idata[iOff+3] = pdata[pOff+3];
         }
       }
 
@@ -188,13 +230,288 @@ http://stackoverflow.com/questions/9972049/cross-origin-data-in-html5-canvas
       this._.putImageData(output, 0, 0);
       // return output?
       return this;
-    }
-    ,
+    },
 
     // Pixel intensity mapping, transfer functions, and the Look Up Table (LUT)
     // --------------------------
     lookUpTable: function() {
       return new LookUpTable(this._);
+    },
+
+    convolve: function(weightsVector, opaque) {
+      var pixels = this.getPixels(),
+          output = this._.createImageData(pixels.width, pixels.height),
+          pdata = pixels.data,
+          idata = output.data,
+          sw = pixels.width, w = sw,
+          sh = pixels.height, h = sh,
+
+          alphaFac = opaque ? 1 : 0,
+          side = Math.round(Math.sqrt(weightsVector.length)),
+          halfSide = Math.floor(side / 2);
+
+      for ( var y = 0; y < h; y++ ) {
+        for ( var x = 0; x < w; x++ ) {
+          var sy = y, sx = x,
+              iOff = ( y * w + x ) * 4,
+              r=0, g=0, b=0, a=0;
+
+          for ( var cy = 0; cy < side; cy++) {
+            for ( var cx = 0; cx < side; cx++) {
+              var scy = Math.min(sh - 1, Math.max(0, sy + cy - halfSide)),
+                  scx = Math.min(sw - 1, Math.max(0, sx + cx - halfSide)),
+                  pOff = ( scy * sw + scx ) * 4,
+                  wt = weightsVector[cy * side + cx];
+
+              r += pdata[pOff] * wt;
+              g += pdata[pOff+1] * wt;
+              b += pdata[pOff+2] * wt;
+              a += pdata[pOff+3] * wt;
+            }
+          }
+          idata[iOff] = r;
+          idata[iOff+1] = g;
+          idata[iOff+2] = b;
+          idata[iOff+3] = a + alphaFac * ( 255 - a );
+        }
+      }
+
+      this._.putImageData(output, 0, 0);
+      // return output?
+      return this;
+    },
+    convolveVertical: function(weightsVector, opaque) {
+      var pixels = this.getPixels(),
+          output = this._.createImageData(pixels.width, pixels.height),
+          pdata = pixels.data,
+          idata = output.data,
+          sw = pixels.width, w = sw,
+          sh = pixels.height, h = sh,
+
+          side = weightsVector.length,
+          halfSide = Math.floor(side / 2),
+          alphaFac = opaque ? 1 : 0;
+
+      for ( var y = 0; y < h; y++ ) {
+        for ( var x = 0; x < w; x++ ) {
+          var sy = y, sx = x,
+              iOff = ( y * w + x ) * 4,
+              r=0, g=0, b=0, a=0;
+
+          for ( var cy = 0; cy < side; cy++ ) {
+            var scy = Math.min(sh - 1, Math.max(0, sy + cy - halfSide)),
+                scx = sx,
+                pOff = ( scy * sw + scx ) * 4,
+                wt = weightsVector[cy];
+
+            r += pdata[pOff] * wt;
+            g += pdata[pOff+1] * wt;
+            b += pdata[pOff+2] * wt;
+            a += pdata[pOff+3] * wt;
+          }
+          idata[iOff] = r;
+          idata[iOff+1] = g;
+          idata[iOff+2] = b;
+          idata[iOff+3] = a + alphaFac * ( 255 - a );
+        }
+      }
+
+      this._.putImageData(output, 0, 0);
+      // return output?
+      return this;
+    },
+    convolveHorizontal: function(weightsVector, opaque) {
+      var pixels = this.getPixels(),
+          output = this._.createImageData(pixels.width, pixels.height),
+          pdata = pixels.data,
+          idata = output.data,
+          sw = pixels.width, w = sw,
+          sh = pixels.height, h = sh,
+
+          side = weightsVector.length,
+          halfSide = Math.floor(side/2),
+          alphaFac = opaque ? 1 : 0;
+
+      for ( var y = 0; y < h; y++ ) {
+        for ( var x = 0; x < w; x++ ) {
+          var sy = y, sx = x,
+              iOff = ( y * w + x ) * 4,
+              r=0, g=0, b=0, a=0;
+
+          for ( var cx = 0; cx < side; cx++ ) {
+            var scy = sy,
+                scx = Math.min(sw - 1, Math.max(0, sx + cx - halfSide)),
+                pOff = (scy * sw + scx ) * 4,
+                wt = weightsVector[cx];
+
+            r += pdata[pOff] * wt;
+            g += pdata[pOff+1] * wt;
+            b += pdata[pOff+2] * wt;
+            a += pdata[pOff+3] * wt;
+          }
+          idata[iOff] = r;
+          idata[iOff+1] = g;
+          idata[iOff+2] = b;
+          idata[iOff+3] = a + alphaFac * ( 255 - a );
+        }
+      }
+
+      this._.putImageData(output, 0, 0);
+      // return output?
+      return this;
+    },
+    laplace: function() {
+      return this.convolve(
+        [-1,-1,-1,
+         -1, 8,-1,
+         -1,-1,-1], true);
+    },
+    //TODO: Float32Array topic...
+    /*
+    convolveFloat32: function(weightsVector, opaque) {
+      var pixels = this.getPixels(),
+          output = new Float32Array(pixels.width * pixels.height * 4);//this._.createImageData(pixels.width, pixels.height).toFloat32Array(),
+          pdata = pixels.data,
+          idata = output.data,
+          sw = pixels.width, w = sw,
+          sh = pixels.height, h = sh,
+
+          side = Math.round(Math.sqrt(weightsVector.length)),
+          halfSide = Math.floor(side / 2),
+          alphaFac = opaque ? 1 : 0;
+
+      for ( var y = 0; y < h; y++ ) {
+        for ( var x = 0; x < w; x++ ) {
+          var sy = y, sx = x,
+              iOff = ( y * w + x ) * 4,
+              r=0, g=0, b=0, a=0;
+
+          for ( var cy = 0; cy < side; cy++ ) {
+            for ( var cx = 0; cx < side; cx++ ) {
+              var scy = Math.min(sh - 1, Math.max(0, sy + cy - halfSide));
+              var scx = Math.min(sw - 1, Math.max(0, sx + cx - halfSide));
+              var pOff = ( scy * sw + scx ) * 4;
+              var wt = weightsVector[cy * side + cx];
+              r += pdata[pOff] * wt;
+              g += pdata[pOff+1] * wt;
+              b += pdata[pOff+2] * wt;
+              a += pdata[pOff+3] * wt;
+            }
+          }
+          idata[iOff] = r;
+          idata[iOff+1] = g;
+          idata[iOff+2] = b;
+          idata[iOff+3] = a + alphaFac * ( 255 - a );
+        }
+      }
+console.info(output)
+      this._.putImageData(output, 0, 0);
+      // return output?
+      return this;
+    }
+    */
+    gaussianBlur: function(diameter) {
+      var diameter = Math.abs(diameter || 10);
+
+      if (diameter <= 1)
+        return this;
+      //  return this.identity();
+
+      var pixels = this.getPixels(),
+          radius = diameter / 2;
+          len = Math.ceil(diameter) + ( 1 - ( Math.ceil(diameter) % 2 ) ),
+          weights = new Float32Array(len),// this.getFloat32Array(len),
+          rho = ( radius + 0.5 ) / 3,
+          rhoSq = rho * rho,
+          gaussianFactor = 1 / Math.sqrt(2 * Math.PI * rhoSq),
+          rhoFactor = -1 / ( 2 * rho * rho ),
+          wsum = 0,
+          middle = Math.floor(len / 2);
+
+      for ( var i = 0; i < len; i++ ) {
+        var x = i - middle,
+            gx = gaussianFactor * Math.exp(x * x * rhoFactor);
+
+        weights[i] = gx;
+        wsum += gx;
+      }
+      for ( var i = 0; i < weights.length; i++) {
+        weights[i] /= wsum;
+      }
+      //return Filters.separableConvolve(pixels, weights, weights, false);
+      this.convolveVertical(weights).convolveHorizontal(weights);
+      return this;
+    },
+    distortSine: function(amount, yamount) {
+      //TODO: performance issue...
+      return;
+      var amount = amount || 0.5,
+          yamount = yamount || amount,
+
+          pixels = this.getPixels(),
+          output = this._.createImageData(pixels.width, pixels.height),
+          idata = output.data,
+
+          px = this._.createImageData(1, 1).data;
+
+      for ( var y = 0; y < output.height; y++ ) {
+        var sy = -Math.sin(y / ( output.height - 1 ) * Math.PI * 2),
+            srcY = y + sy * yamount * output.height / 4;
+
+        srcY = Math.max(Math.min(srcY, output.height - 1), 0);
+
+        for (var x = 0; x < output.width; x++) {
+          var sx = -Math.sin(x / (output.width - 1) * Math.PI * 2),
+              srcX = x + sx * amount * output.width / 4;
+
+          srcX = Math.max(Math.min(srcX, output.width - 1), 0);
+
+          var rgba = this.getBilinearSample(srcX, srcY, px);
+
+          var off = ( y * output.width + x ) * 4;
+          idata[off] = rgba[0];
+          idata[off+1] = rgba[1];
+          idata[off+2] = rgba[2];
+          idata[off+3] = rgba[3];
+        }
+      }
+
+      this._.putImageData(output, 0, 0);
+      // return output?
+      return this;
+    },
+    erode: function() {
+      var pixels = this.getPixels(),
+          output = this._.createImageData(pixels.width, pixels.height),
+          pdata = pixels.data,
+          idata = output.data,
+          sw = pixels.width, w = sw,
+          sh = pixels.height, h = sh;
+
+      for ( var y = 0; y < h; y++ ) {
+        for ( var x = 0; x < w; x++ ) {
+          var sy = y, sx = x, v = 0,
+              dstOff = ( y * w + x ) * 4,
+              srcOff = ( sy * sw + sx ) * 4;
+
+          if ( pdata[srcOff] == 0 ) {
+            if ( pdata[(sy*sw+Math.max(0,sx-1))*4] == 0 &&
+                 pdata[(Math.max(0,sy-1)*sw+sx)*4] == 0) {
+              v = 255;
+            }
+          } else {
+              v = 255;
+          }
+          idata[dstOff] = v;
+          idata[dstOff+1] = v;
+          idata[dstOff+2] = v;
+          idata[dstOff+3] = 255;
+        }
+      }
+
+      this._.putImageData(output, 0, 0);
+      // return output?
+      return this;
     }
   };
 
@@ -342,7 +659,6 @@ http://stackoverflow.com/questions/9972049/cross-origin-data-in-html5-canvas
   }
   //window.LookUpTable = LookUpTable;
 
-
   HTMLCanvasElement.prototype.getContext = (function(_super) {
     return function() {
       var context = _super.apply(this, arguments);
@@ -352,6 +668,8 @@ http://stackoverflow.com/questions/9972049/cross-origin-data-in-html5-canvas
     };
   })(HTMLCanvasElement.prototype.getContext);
 
+  // replace image tag (img) with canvas and draw current image
+  // note: security issue - if you have no right to access image
   HTMLImageElement.prototype.toCanvas = function(keep) {
     var canvas = document.createElement('canvas');
     canvas.width = this.width;
@@ -365,6 +683,25 @@ http://stackoverflow.com/questions/9972049/cross-origin-data-in-html5-canvas
     this.parentElement.replaceChild(canvas, this);
     return canvas;
   }
+
+  /*
+  ImageData.prototype.toFloat32Array = function() {
+    var f32a = new Float32Array(this.width * this.height * 4);
+    // overwrite data attribute
+    Object.defineProperty(this, 'data', {
+      get: function() { return f32a; }
+    });
+    return this;
+  }
+
+  // store last image data written to canvas
+  CanvasRenderingContext2D.prototype.putImageData = (function(_super) {
+    return function(imageData) {
+      _super.apply(this, arguments);
+      this.lastImageData = this;
+    };
+  })(CanvasRenderingContext2D.prototype.putImageData);
+  */
 
   window.canvasFilter = canvasFilter;
 })();
