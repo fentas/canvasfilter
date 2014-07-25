@@ -35,8 +35,12 @@ http://stackoverflow.com/questions/9972049/cross-origin-data-in-html5-canvas
     this._ = context;
 
     // restore functionality
-    var orgImageDate = context.getImageData(0, 0, context.canvas.width, context.canvas.height);
-    this.restore = function () { context.putImageData(orgImageDate, 0, 0); return this; };
+    (function(idata) {
+      context.restore = function () {
+        context.putImageData(idata, 0, 0);
+        return context;
+      };
+    })(context.getImageData(0, 0, context.canvas.width, context.canvas.height));
   }
 
   CanvasFilter.prototype = {
