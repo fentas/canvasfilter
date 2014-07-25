@@ -17,19 +17,19 @@ http://stackoverflow.com/questions/9972049/cross-origin-data-in-html5-canvas
     document.getElementsByTagName('head')[0].appendChild(script);
   }
 
-  // canvasFilter object
+  // CanvasFilter object
   // --------------------------
-  function canvasFilter(context) {
+  function CanvasFilter(context) {
     // is initialized object?
-    if ( ! ( this instanceof canvasFilter ) )
-      return new canvasFilter(context);
+    if ( ! ( this instanceof CanvasFilter ) )
+      return new CanvasFilter(context);
 
     var context = context || document.createElement('canvas').getContext('2d');
     if ( context instanceof HTMLCanvasElement )
       context = context.getContext('2d');
 
     if ( ! ( context instanceof CanvasRenderingContext2D ) )
-      throw Error('[canvasFilter] first argument has to be an instance of CanvasRenderingContext2D or HTMLCanvasElement');
+      throw Error('[CanvasFilter] first argument has to be an instance of CanvasRenderingContext2D or HTMLCanvasElement');
 
     // set context
     this._ = context;
@@ -39,7 +39,7 @@ http://stackoverflow.com/questions/9972049/cross-origin-data-in-html5-canvas
     this.restore = function () { context.putImageData(orgImageDate, 0, 0); return this; };
   }
 
-  canvasFilter.prototype = {
+  CanvasFilter.prototype = {
     // misc
     // --------------------------
     getPixels: function() {
@@ -420,7 +420,7 @@ console.info(output)
       var pixels = this.getPixels(),
           radius = diameter / 2;
           len = Math.ceil(diameter) + ( 1 - ( Math.ceil(diameter) % 2 ) ),
-          weights = new Float32Array(len),// this.getFloat32Array(len),
+          weights = new Float32Array(len),
           rho = ( radius + 0.5 ) / 3,
           rhoSq = rho * rho,
           gaussianFactor = 1 / Math.sqrt(2 * Math.PI * rhoSq),
@@ -512,6 +512,130 @@ console.info(output)
       this._.putImageData(output, 0, 0);
       // return output?
       return this;
+    },
+
+    // blending stuff
+    // --------------------------
+    blend: function(object, above) {
+      var other = null;
+      if ( object instanceof HTMLImageElement )
+        other = object.toCanvas(true).getContext('2d');
+      else if ( object instanceof HTMLCanvasElement )
+        other = obejct.getContext('2d');
+      else if ( object instanceof CanvasFilter )
+        other = object._;
+      else if ( object instanceof CanvasRenderingContext2D )
+        other = object;
+      else
+        throw Error('[canvasfilter.filter.blend] missing other context');
+
+      var _this = this._,
+          pixels = this.getPixels(),
+          output = _this.createImageData(pixels.width, pixels.height),
+          oData = output.data,
+          get = {};
+
+      Object.defineProperty(get, 'below', {
+        get: function() { return (above ? other : _this).getImageData(0, 0, _this.canvas.width, _this.canvas.height); }
+      });
+      Object.defineProperty(get, 'above', {
+        get: function() { return (above ? _this : other).getImageData(0, 0, _this.canvas.width, _this.canvas.height); }
+      });
+
+
+      return {
+        darken: function() {
+          var a = get.above.data, b = get.below.data,
+              f = 1/255;
+
+          for ( var i = 0; i < a.length; i += 4 ) {
+            oData[i] = a[i] < b[i] ? a[i] : b[i];
+            oData[i+1] = a[i+1] < b[i+1] ? a[i+1] : b[i+1];
+            oData[i+2] = a[i+2] < b[i+2] ? a[i+2] : b[i+2];
+            oData[i+3] = a[i+3]+((255-a[i+3])*b[i+3])*f;
+          }
+          _this.putImageData(output, 0, 0);
+          return _this.filter;
+        },
+        lighten: function() {
+          var a = get.above.data, b = get.below.data,
+              f = 1/255;
+
+          for ( var i = 0; i < a.length; i += 4 ) {
+            oData[i] = a[i] > b[i] ? a[i] : b[i];
+            oData[i+1] = a[i+1] > b[i+1] ? a[i+1] : b[i+1];
+            oData[i+2] = a[i+2] > b[i+2] ? a[i+2] : b[i+2];
+            oData[i+3] = a[i+3]+((255-a[i+3])*b[i+3])*f;
+          }
+          _this.putImageData(output, 0, 0);
+          return _this.filter;
+        },
+        multiply: function(above) {
+          var a = get.above.data, b = get.below.data,
+              f = 1/255;
+
+          for ( var i = 0; i < a.length; i += 4 ) {
+            oData[i] = (a[i]*b[i])*f;
+            oData[i+1] = (a[i+1]*b[i+1])*f;
+            oData[i+2] = (a[i+2]*b[i+2])*f;
+            oData[i+3] = a[i+3]+((255-a[i+3])*b[i+3])*f;
+          }
+          _this.putImageData(output, 0, 0);
+          return _this.filter;
+        },
+        screen: function() {
+          var a = get.above.data, b = get.below.data,
+              f = 1/255;
+
+          for ( var i = 0; i < a.length; i += 4 ) {
+            oData[i] = a[i]+b[i]-a[i]*b[i]*f;
+            oData[i+1] = a[i+1]+b[i+1]-a[i+1]*b[i+1]*f;
+            oData[i+2] = a[i+2]+b[i+2]-a[i+2]*b[i+2]*f;
+            oData[i+3] = a[i+3]+((255-a[i+3])*b[i+3])*f;
+          }
+          _this.putImageData(output, 0, 0);
+          return _this.filter;
+        },
+        add: function() {
+          var a = get.above.data, b = get.below.data,
+              f = 1/255;
+
+          for ( var i = 0; i < a.length; i += 4 ) {
+            oData[i] = (a[i]+b[i]);
+            oData[i+1] = (a[i+1]+b[i+1]);
+            oData[i+2] = (a[i+2]+b[i+2]);
+            oData[i+3] = a[i+3]+((255-a[i+3])*b[i+3])*f;
+          }
+          _this.putImageData(output, 0, 0);
+          return _this.filter;
+        },
+        sub: function() {
+          var a = get.above.data, b = get.below.data,
+              f = 1/255;
+
+          for ( var i = 0; i < a.length; i += 4 ) {
+            oData[i] = (a[i]+b[i]-255);
+            oData[i+1] = (a[i+1]+b[i+1]-255);
+            oData[i+2] = (a[i+2]+b[i+2]-255);
+            oData[i+3] = a[i+3]+((255-a[i+3])*b[i+3])*f;
+          }
+          _this.putImageData(output, 0, 0);
+          return _this.filter;
+        },
+        difference: function() {
+          var a = get.above.data, b = get.below.data,
+              f = 1/255;
+
+          for ( var i = 0; i < a.length; i += 4 ) {
+            oData[i] = Math.abs(a[i]-b[i]);
+            oData[i+1] = Math.abs(a[i+1]-b[i+1]);
+            oData[i+2] = Math.abs(a[i+2]-b[i+2]);
+            oData[i+3] = a[i+3]+((255-a[i+3])*b[i+3])*f;
+          }
+          _this.putImageData(output, 0, 0);
+          return _this.filter;
+        }
+      };
     }
   };
 
@@ -584,7 +708,7 @@ console.info(output)
   // custom array for Look Up Table
   function LookUpTable(context) {
     if ( ! ( context instanceof CanvasRenderingContext2D ) )
-      throw Error('[canvasFilter] first argument has to be an instance of CanvasRenderingContext2D');
+      throw Error('[CanvasFilter] first argument has to be an instance of CanvasRenderingContext2D');
 
     // make sure this is an instance of LookUpTable (call without new)
     if ( ! ( this instanceof LookUpTable ) )
@@ -659,10 +783,20 @@ console.info(output)
   }
   //window.LookUpTable = LookUpTable;
 
+  CanvasRenderingContext2D.prototype.clone = function() {
+    var clone = document.createElement('canvas').getContext('2d');
+    clone.putImageData(
+      this.getImageData(0, 0,
+        (clone.canvas.width = this.canvas.width),
+        (clone.canvas.height = this.canvas.height)), 0, 0);
+    return clone;
+  }
+
   HTMLCanvasElement.prototype.getContext = (function(_super) {
-    return function() {
+    return function(type) {
       var context = _super.apply(this, arguments);
-      context.filter = new canvasFilter(context);
+      if ( type == '2d' )
+        context.filter = new CanvasFilter(context);
 
       return context;
     };
@@ -703,5 +837,5 @@ console.info(output)
   })(CanvasRenderingContext2D.prototype.putImageData);
   */
 
-  window.canvasFilter = canvasFilter;
+  window.CanvasFilter = CanvasFilter;
 })();
