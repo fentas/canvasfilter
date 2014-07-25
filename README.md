@@ -67,10 +67,13 @@ ctx.filter // << here is the image processing collection. ~ CanvasFilter
 
 #### Image processing filters
 - `CanvasFilter *.flipHorizontal()`
+
 > Flips the image horizontally.
 - `CanvasFilter *.flipVertical()`
+
 > Flips the image vertically.
   - subtest
+  
   > test test
 
 #### The rest
