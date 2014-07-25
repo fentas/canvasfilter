@@ -65,7 +65,7 @@ var ctx = canvas.getContext('2d');
 ctx.filter // << here is the image processing collection. ~ CanvasFilter
 ```
 
-###### Image processing filters
+###### Image processing filters.
 - `CanvasFilter *.flipHorizontal()`
 
 > Flips the image horizontally.
@@ -84,7 +84,7 @@ ctx.filter // << here is the image processing collection. ~ CanvasFilter
 
 > Not working right now. (Performance issue?)
 
-###### [Convolution](http://en.wikipedia.org/wiki/Convolution)
+###### Convolution. [?](http://en.wikipedia.org/wiki/Convolution)
 - `CanvasFilter *.convolve(weightsVector, opaque)`
 - `CanvasFilter *.convolveVertical(weightsVector, opaque)`
 - `CanvasFilter *.convolveHorizontal(weightsVector, opaque)`
@@ -98,7 +98,7 @@ ctx.filter // << here is the image processing collection. ~ CanvasFilter
 
 - `CanvasFilter *.gaussianBlur()`
 
-###### Blending methods
+###### Blending methods.
 This enables you to blend two or more images together.
 First call `*.blend(object[, above])`.
 
@@ -128,10 +128,42 @@ ctx.filter.blend(document.querySelector('img')).sub();
 - `CanvasFilter *.blend([...]).sub()`
 - `CanvasFilter *.blend([...]).difference()`
 
-###### Pixel intensity mapping, transfer functions, and the Look Up Table (LUT)
-
+###### Look Up Table (LUT). [?](http://microscopy.berkeley.edu/courses/dib/sections/03IPII/)
+This gives the functionality to use LUTs. For this there exists a separate
+object - `LookUpTable`. In order to work with this following method is given.
 
 - `LookUpTable *.lookUpTable()`
+
+The LookUpTable object consists of predefined methods and 4 different matrices.
+Each for every color plus one for alpha (r,g,b and a).
+
+The predefined methods will set all matrices to perform as described:
+
+- `LookUpTable [LookUpTable].invert()`
+- `LookUpTable [LookUpTable].brightnessContrast(brightness, contrast)`
+- `CanvasRenderingContext2D [LookUpTable].apply()`
+
+> This method will apply all matrices to the given image and return the canvas
+> context (CanvasRenderingContext2D).
+
+Now there is also the possibility to set each matrix itself. Each matrix can
+be access simply like this `ColorMap [LookUpTable].a` for example. This will return
+a ColorMap object which is basically a array/vector (of 255 values).
+You can set each value as you like (e.g. `[LookUpTable].a[42] = 13;`) or use
+the following methods:
+
+- `LookUpTable [ColorMap].identity()` _is default_
+- `LookUpTable [ColorMap].invert()`
+- `LookUpTable [ColorMap].brightnessContrast(brightness, contrast)`
+
+At last another example, inverting the green spectrum and applying the result:
+```js
+var ctx = canvas.getContext('2d'),
+    lut = ctx.filter.lookUpTable();
+
+lut.g.invert().apply()
+//btw. you could resume the chain like: *.filter.flipVertical()
+```
 
 #### The rest
 - `ImageData *.getPixels()`
@@ -198,4 +230,4 @@ Bitcoin address: `197EypPopXtDPFK6rEbCw6XDEaxjTKP58S`
 
 PayPal: `jan.guth@gmail.com`
 
-Or just `flattr` this repo.
+[Or just `flattr`  me.](https://flattr.com/submit/auto?user_id=jguth&url=https://github.com/fentas)
