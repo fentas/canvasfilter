@@ -65,7 +65,7 @@ var ctx = canvas.getContext('2d');
 ctx.filter // << here is the image processing collection. ~ CanvasFilter
 ```
 
-#### Image processing filters
+###### Image processing filters
 - `CanvasFilter *.flipHorizontal()`
 
 > Flips the image horizontally.
@@ -74,6 +74,64 @@ ctx.filter // << here is the image processing collection. ~ CanvasFilter
 
 > Flips the image vertically.
 
+- `CanvasFilter *.luminance()`
+- `CanvasFilter *.grayscale()`
+- `CanvasFilter *.grayscaleAvg()`
+- `CanvasFilter *.threshold(threshold, high, low)`
+- `CanvasFilter *.invert()`
+- `CanvasFilter *.erode()`
+- `CanvasFilter *.distortSine()`
+
+> Not working right now. (Performance issue?)
+
+###### [Convolution](http://en.wikipedia.org/wiki/Convolution)
+- `CanvasFilter *.convolve(weightsVector, opaque)`
+- `CanvasFilter *.convolveVertical(weightsVector, opaque)`
+- `CanvasFilter *.convolveHorizontal(weightsVector, opaque)`
+- `CanvasFilter *.laplace()`
+
+```Matlab
+[-1,-1,-1,
+ -1, 8,-1,
+ -1,-1,-1]
+```
+
+- `CanvasFilter *.gaussianBlur()`
+
+###### Blending methods
+This enables you to blend two or more images together.
+First call `*.blend(object[, above])`.
+
+`object`
+
+> Any image object like
+> * HTMLImageElement
+> * HTMLCanvasElement
+> * CanvasRenderingContext2D
+> * CanvasFilter
+
+`above` _default: false_
+
+> Whether the given image should be above or below of the other image.
+
+One example for this:
+```js
+var ctx = canvas.getContext('2d');
+ctx.filter.blend(document.querySelector('img')).sub();
+```
+
+- `CanvasFilter *.blend([...]).darken()`
+- `CanvasFilter *.blend([...]).lighten()`
+- `CanvasFilter *.blend([...]).multiply()`
+- `CanvasFilter *.blend([...]).screen()`
+- `CanvasFilter *.blend([...]).add()`
+- `CanvasFilter *.blend([...]).sub()`
+- `CanvasFilter *.blend([...]).difference()`
+
+###### Pixel intensity mapping, transfer functions, and the Look Up Table (LUT)
+
+
+- `LookUpTable *.lookUpTable()`
 
 #### The rest
 - `ImageData *.getPixels()`
@@ -88,7 +146,7 @@ ctx.filter // << here is the image processing collection. ~ CanvasFilter
 There are some extension to some of the HTML dom objects to make the
 workflow more convenient.
 
-#### `HTMLImageElement`
+#### HTMLImageElement
 - `HTMLCanvasElement *.toCanvas([keep])`
 
 > Converts _img_ to _canvas_ with the image data.
@@ -98,7 +156,7 @@ workflow more convenient.
   > If *true* img tag will not be replace instead it just returns the canvas
   > tag/object.
 
-#### `HTMLCanvasElement`
+#### HTMLCanvasElement
 - `HTMLImageElement *.toImage([keep], [type], [args])`
 
 > Converts _canvas_ to _image_ with canvas image data. Basically it uses canvas
@@ -111,10 +169,10 @@ workflow more convenient.
 
   `type` _default: image/png_
 
-  > More information about this.
-  > [toDataURL](https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement)
+  > More info:
+  > https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement#toDataURL
 
-#### `CanvasRenderingContext2D`
+#### CanvasRenderingContext2D
 - `CanvasRenderingContext2D *.clone()`
 
 > Clones the given canvas context. E.g. nice to have for blending methods.

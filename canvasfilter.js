@@ -197,7 +197,7 @@ http://stackoverflow.com/questions/9972049/cross-origin-data-in-html5-canvas
       // return output?
       return this;
     },
-    threshold: function(pixels, threshold, high, low) {
+    threshold: function(threshold, high, low) {
       var pixels = this.getPixels(),
           output = this._.createImageData(pixels.width, pixels.height),
           high = high || 255,
@@ -236,12 +236,81 @@ http://stackoverflow.com/questions/9972049/cross-origin-data-in-html5-canvas
       return this;
     },
 
-    // Pixel intensity mapping, transfer functions, and the Look Up Table (LUT)
-    // --------------------------
-    lookUpTable: function() {
-      return new LookUpTable(this._);
+    erode: function() {
+      var pixels = this.getPixels(),
+          output = this._.createImageData(pixels.width, pixels.height),
+          pdata = pixels.data,
+          idata = output.data,
+          sw = pixels.width, w = sw,
+          sh = pixels.height, h = sh;
+
+      for ( var y = 0; y < h; y++ ) {
+        for ( var x = 0; x < w; x++ ) {
+          var sy = y, sx = x, v = 0,
+              dstOff = ( y * w + x ) * 4,
+              srcOff = ( sy * sw + sx ) * 4;
+
+          if ( pdata[srcOff] == 0 ) {
+            if ( pdata[(sy*sw+Math.max(0,sx-1))*4] == 0 &&
+                 pdata[(Math.max(0,sy-1)*sw+sx)*4] == 0) {
+              v = 255;
+            }
+          } else {
+              v = 255;
+          }
+          idata[dstOff] = v;
+          idata[dstOff+1] = v;
+          idata[dstOff+2] = v;
+          idata[dstOff+3] = 255;
+        }
+      }
+
+      this._.putImageData(output, 0, 0);
+      // return output?
+      return this;
     },
 
+    distortSine: function(amount, yamount) {
+      //TODO: performance issue...
+      return;
+      var amount = amount || 0.5,
+          yamount = yamount || amount,
+
+          pixels = this.getPixels(),
+          output = this._.createImageData(pixels.width, pixels.height),
+          idata = output.data,
+
+          px = this._.createImageData(1, 1).data;
+
+      for ( var y = 0; y < output.height; y++ ) {
+        var sy = -Math.sin(y / ( output.height - 1 ) * Math.PI * 2),
+            srcY = y + sy * yamount * output.height / 4;
+
+        srcY = Math.max(Math.min(srcY, output.height - 1), 0);
+
+        for (var x = 0; x < output.width; x++) {
+          var sx = -Math.sin(x / (output.width - 1) * Math.PI * 2),
+              srcX = x + sx * amount * output.width / 4;
+
+          srcX = Math.max(Math.min(srcX, output.width - 1), 0);
+
+          var rgba = this.getBilinearSample(srcX, srcY, px);
+
+          var off = ( y * output.width + x ) * 4;
+          idata[off] = rgba[0];
+          idata[off+1] = rgba[1];
+          idata[off+2] = rgba[2];
+          idata[off+3] = rgba[3];
+        }
+      }
+
+      this._.putImageData(output, 0, 0);
+      // return output?
+      return this;
+    },
+
+    // [Convolution](http://en.wikipedia.org/wiki/Convolution)
+    // --------------------------
     convolve: function(weightsVector, opaque) {
       var pixels = this.getPixels(),
           output = this._.createImageData(pixels.width, pixels.height),
@@ -446,76 +515,11 @@ console.info(output)
       this.convolveVertical(weights).convolveHorizontal(weights);
       return this;
     },
-    distortSine: function(amount, yamount) {
-      //TODO: performance issue...
-      return;
-      var amount = amount || 0.5,
-          yamount = yamount || amount,
 
-          pixels = this.getPixels(),
-          output = this._.createImageData(pixels.width, pixels.height),
-          idata = output.data,
-
-          px = this._.createImageData(1, 1).data;
-
-      for ( var y = 0; y < output.height; y++ ) {
-        var sy = -Math.sin(y / ( output.height - 1 ) * Math.PI * 2),
-            srcY = y + sy * yamount * output.height / 4;
-
-        srcY = Math.max(Math.min(srcY, output.height - 1), 0);
-
-        for (var x = 0; x < output.width; x++) {
-          var sx = -Math.sin(x / (output.width - 1) * Math.PI * 2),
-              srcX = x + sx * amount * output.width / 4;
-
-          srcX = Math.max(Math.min(srcX, output.width - 1), 0);
-
-          var rgba = this.getBilinearSample(srcX, srcY, px);
-
-          var off = ( y * output.width + x ) * 4;
-          idata[off] = rgba[0];
-          idata[off+1] = rgba[1];
-          idata[off+2] = rgba[2];
-          idata[off+3] = rgba[3];
-        }
-      }
-
-      this._.putImageData(output, 0, 0);
-      // return output?
-      return this;
-    },
-    erode: function() {
-      var pixels = this.getPixels(),
-          output = this._.createImageData(pixels.width, pixels.height),
-          pdata = pixels.data,
-          idata = output.data,
-          sw = pixels.width, w = sw,
-          sh = pixels.height, h = sh;
-
-      for ( var y = 0; y < h; y++ ) {
-        for ( var x = 0; x < w; x++ ) {
-          var sy = y, sx = x, v = 0,
-              dstOff = ( y * w + x ) * 4,
-              srcOff = ( sy * sw + sx ) * 4;
-
-          if ( pdata[srcOff] == 0 ) {
-            if ( pdata[(sy*sw+Math.max(0,sx-1))*4] == 0 &&
-                 pdata[(Math.max(0,sy-1)*sw+sx)*4] == 0) {
-              v = 255;
-            }
-          } else {
-              v = 255;
-          }
-          idata[dstOff] = v;
-          idata[dstOff+1] = v;
-          idata[dstOff+2] = v;
-          idata[dstOff+3] = 255;
-        }
-      }
-
-      this._.putImageData(output, 0, 0);
-      // return output?
-      return this;
+    // Pixel intensity mapping, transfer functions, and the Look Up Table (LUT)
+    // --------------------------
+    lookUpTable: function() {
+      return new LookUpTable(this._);
     },
 
     // blending stuff
@@ -709,7 +713,7 @@ console.info(output)
   //TODO: polyfill fast enough?!
   ColorMap.prototype = Object.create(Uint8Array.prototype);
 
-  // custom array for Look Up Table
+  // custom TypedArray for Look Up Table
   function LookUpTable(context) {
     if ( ! ( context instanceof CanvasRenderingContext2D ) )
       throw Error('[CanvasFilter] first argument has to be an instance of CanvasRenderingContext2D');
