@@ -806,6 +806,20 @@ console.info(output)
     };
   })(HTMLCanvasElement.prototype.getContext);
 
+  HTMLCanvasElement.prototype.toImage = function(keep) {
+    var img = document.createElement('img');
+    img.width = this.width;
+    img.height = this.height;
+    img.src = this.toDataURL.apply(this, Array.prototype.slice.call(arguments, 1));
+
+    // if there is no parent (DOM) there is nothing to replace
+    if ( keep || this.parentElement === null ) {
+      return img;
+    }
+    this.parentElement.replaceChild(img, this);
+    return img;
+  }
+
   // replace image tag (img) with canvas and draw current image
   // note: security issue - if you have no right to access image
   HTMLImageElement.prototype.toCanvas = function(keep) {
