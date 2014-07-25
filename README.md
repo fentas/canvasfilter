@@ -5,7 +5,9 @@ use.
 
 ### Inspired by - Based on
 https://github.com/kig/canvasfilters
+
 http://www.html5rocks.com/en/tutorials/canvas/imagefilters/
+
 Big thanks for that.
 
 ## Current State
@@ -18,6 +20,7 @@ Float32 problematic.
 
 ### Browser support
 For the main part it should be working in browsers supporting canvas.
+
 http://caniuse.com/#search=canvas
 
 Personally I tested it on FireFox (31) and Chrome (37 ~ beta).
@@ -29,9 +32,7 @@ Personally I tested it on FireFox (31) and Chrome (37 ~ beta).
 4. Maybe make it ready for nodejs environment.
 
 ## Getting Started
-Just download it and use it.
-
-Or you can use bower.
+Just download and use it. Or you can use bower.
 ```shell
 bower install fentas/canvasfilter
 ```
@@ -56,27 +57,28 @@ ctx.canvas.toImage();
 </script>
 ```
 
-### canvasfilter methods
-All the filter are found within _filter_ attribute (in
+### CanvasFilter methods
+All the filters are found within _filter_ attribute (in
 `CanvasRenderingContext2D` object)
 ```js
 var ctx = canvas.getContext('2d');
-ctx.filter // << here is the image processing collection.
+ctx.filter // << here is the image processing collection. ~ CanvasFilter
 ```
 
 #### Image processing filters
-- `*.flipHorizontal()`
-
-Flips the image horizontally.
-- `*.flipVertical()`
-
-Flips the image vertically.
+- `CanvasFilter *.flipHorizontal()`
+> Flips the image horizontally.
+- `CanvasFilter *.flipVertical()`
+> Flips the image vertically.
+  - subtest
+  > test test
 
 #### The rest
 - `ImageData *.getPixels()`
-Returns simply the complete image data of the canvas object.
 
+Returns simply the complete image data of the canvas object.
 - `*.getBilinearSample(x, y, px)`
+
 http://en.wikipedia.org/wiki/Bilinear_filtering
 
 ### Other useful extensions
