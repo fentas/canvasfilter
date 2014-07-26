@@ -1,0 +1,29 @@
+{
+  "globals": {
+    "QUnit": false
+  },
+
+  "bitwise": true,
+  "camelcase": true,
+  "curly": false,
+  "eqeqeq": true,
+  "forin": true,
+  "immed": true,
+  "latedef": false,
+  "newcap": true,
+  "noarg": true,
+  "noempty": true,
+  "nonew": true,
+  "plusplus": false,
+  "quotmark": "single",
+  "undef": true,
+  "unused": false,
+  "trailing": true,
+
+  "proto": true,
+  "sub": false,
+
+  "browser": true,
+
+  "onevar": true
+}
