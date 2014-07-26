@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+  <meta charset="UTF-8">
+  <title>canvas.js test</title>
+
+  <!-- Include the test framework -->
+  <link rel="stylesheet" href="../node_modules/qunitjs/qunit/qunit.css">
+</head>
+
+<body>
+  <!-- Include the test framework -->
+  <div id="qunit"></div>
+  <div id="qunit-fixture">
+    <img src="./images/HTML5.png">
+  </div>
+  <script src="../node_modules/qunitjs/qunit/qunit.js"></script>
+  <script src="./qunit/qunit-assert-canvas.js"></script>
+
+  <!-- Include the source code -->
+  <script src="../canvasfilter.js"></script>
+
+  <!-- Include the test suite(s) -->
+  <script>
+  QUnit.module( "Image processing filters.", {
+    setup: function( assert ) {
+      var canvas = document.querySelector('img').toCanvas();
+
+      assert.pixelEqual(canvas, 125, 150, 228, 77, 38, 255, 'image to canvas convert.');
+      assert.data = {
+        ctx: canvas.getContext('2d')
+      };
+    },
+    teardown: function( assert ) {
+      assert.data = {};
+    }
+  });
+  </script>
+  <script src="./flipHorizontal.test.js"></script>
+  <script src="./flipVertical.test.js"></script>
+  <script src="./luminance.test.js"></script>
+  <script src="./grayscale.test.js"></script>
+  <script src="./grayscaleAvg.test.js"></script>
+  <script src="./threshold.test.js"></script>
+  <script src="./invert.test.js"></script>
+  <script src="./erode.test.js"></script>
+  <!--<script src="./distortSine.test.js"></script>-->
+
+  <script>
+  QUnit.module( "Convolution.", {
+    setup: function( assert ) {
+
+    },
+    teardown: function( assert ) {
+
+    }
+  });
+  </script>
+  <script src="./convolve.test.js"></script>
+  <script src="./convolveVertical.test.js"></script>
+  <script src="./convolveHorizontal.test.js"></script>
+  <script src="./laplace.test.js"></script>
+  <script src="./gaussianBlur.test.js"></script>
+
+  <script>
+  QUnit.module( "Blending methods.", {
+    setup: function( assert ) {
+
+    },
+    teardown: function( assert ) {
+
+    }
+  });
+  </script>
+  <script src="./blend.test.js"></script>
+
+  <script>
+  QUnit.module( "Look Up Table (LUT).", {
+    setup: function( assert ) {
+
+    },
+    teardown: function( assert ) {
+
+    }
+  });
+  </script>
+  <script src="./lookUpTable.test.js"></script>
+
+  <script>
+  QUnit.module( "Other.", {
+    setup: function( assert ) {
+
+    },
+    teardown: function( assert ) {
+
+    }
+  });
+  </script>
+  <script src="./other.test.js"></script>
+</body>
+
+</html>
