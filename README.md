@@ -90,6 +90,7 @@ ctx.filter // << here is the image processing collection. ~ CanvasFilter
 - `CanvasFilter *.convolveHorizontal(weightsVector, opaque)`
 - `CanvasFilter *.laplace()`
 
+> This method simply applies the following matrix.
 ```Matlab
 [-1,-1,-1,
  -1, 8,-1,
@@ -208,7 +209,6 @@ workflow more convenient.
 - `CanvasRenderingContext2D *.clone()`
 
 > Clones the given canvas context. E.g. nice to have for blending methods.
-
 ```js
 var ctx = document.querySelector('img').toCanvas().getContext('2d');
 // applies grayscale filter and flips the image vertically

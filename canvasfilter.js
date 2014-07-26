@@ -7,6 +7,7 @@ http://stackoverflow.com/questions/9972049/cross-origin-data-in-html5-canvas
 **/
 
 (function() {
+  "use strict";
 
   // polyfill typed array
   // --------------------------
@@ -269,10 +270,8 @@ http://stackoverflow.com/questions/9972049/cross-origin-data-in-html5-canvas
       // return output?
       return this;
     },
-
+    //TODO: performance issue...
     distortSine: function(amount, yamount) {
-      //TODO: performance issue...
-      return;
       var amount = amount || 0.5,
           yamount = yamount || amount,
 
@@ -798,7 +797,7 @@ console.info(output)
         (clone.canvas.width = this.canvas.width),
         (clone.canvas.height = this.canvas.height)), 0, 0);
     return clone;
-  }
+  };
 
   HTMLCanvasElement.prototype.getContext = (function(_super) {
     return function(type) {
@@ -822,7 +821,7 @@ console.info(output)
     }
     this.parentElement.replaceChild(img, this);
     return img;
-  }
+  };
 
   // replace image tag (img) with canvas and draw current image
   // note: security issue - if you have no right to access image
@@ -838,7 +837,7 @@ console.info(output)
     }
     this.parentElement.replaceChild(canvas, this);
     return canvas;
-  }
+  };
 
   /*
   ImageData.prototype.toFloat32Array = function() {
