@@ -1,0 +1,36 @@
+{
+  "name": "canvasfilter",
+  "version": "0.1.0",
+  "description": "This library extends the canvas context object (CanvasRenderingContext2D) with image processing filters.",
+  "keywords": [
+    "html5", "canvas", "image", "filter", "processing"
+  ],
+  "homepage": "http://jan.guth.so",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/fentas/canvasfilter.git"
+  },
+  "bugs": "https://github.com/fentas/canvasfilter/issues",
+  "licenses": [
+    {
+      "type": "GPLv2",
+      "url": "http://www.gnu.org/licenses/gpl-2.0.html"
+    }
+  ],
+  "author": {
+    "name": "fentas",
+    "web": "https://github.com/fentas"
+  },
+  "main": "./canvasfilter.js",
+  "scripts": {
+    "test": "grunt test"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "qunit": "~0.7.2",
+    "grunt-contrib-jshint": "~0.10.0",
+    "grunt-contrib-qunit": "~0.5.2",
+    "qunitjs": "~1.14.0"
+  },
+  "private": true
+}

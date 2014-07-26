@@ -1,0 +1,30 @@
+############################
+# npm
+############################
+node_modules
+npm-debug.log
+
+############################
+# tmp, editor & OS files
+############################
+.tmp
+*.swo
+*.swp
+*.swn
+*.swm
+.DS_STORE
+*#
+*~
+.idea
+nbproject
+
+############################
+# bower
+############################
+bower_components
+/assets/components
+
+############################
+# Other
+############################
+.node_history
