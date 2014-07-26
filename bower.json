@@ -16,7 +16,7 @@
 
   "ignore": [
     "/*",
-    "!/canvasfilter.js"
+    "!/canvasfilter.js",
     "!/LICENSE"
   ],
   "devDependencies": {
