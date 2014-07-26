@@ -1,7 +1,26 @@
 {
   "name": "canvasfilter",
-  "private": true,
-  "dependencies": {
-    
+  "description": "This library extends the canvas context object (CanvasRenderingContext2D) with image processing filters.",
+  "keywords": ["canvas", "filter", "image processing", "image", "library"],
+
+  "authors": [
+    "Jan Guth <jan.guth@gmail.com> (http://jan.guth.so)"
+  ],
+  "license": "GPL-2.0+",
+
+  "main": "canvasfilter.js",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/fentas/canvasfilter.git"
+  },
+
+  "ignore": [
+    "/*",
+    "!/canvasfilter.js"
+    "!/LICENSE"
+  ],
+
+  "devDependencies": {
+
   }
 }

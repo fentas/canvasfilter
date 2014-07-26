@@ -29,6 +29,7 @@ Personally I tested it on FireFox (31) and Chrome (37 ~ beta).
 
 ## Planed in near future
 - [x] Setting up test environment. (e.g. travis-ci, browser testing etc.)
+  - [ ] complete all test cases (/test/*.test.js)
 - [ ] Create examples and demo page.
 - [ ] Of course bug fixing, improvements and extending.
 - [ ] Maybe make it ready for nodejs environment.
