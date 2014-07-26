@@ -1,5 +1,5 @@
 
-QUnit.test( "*.flipVertical()", function( assert ) {
+QUnit.test( '*.flipVertical()', function( assert ) {
   var canvas = assert.data.ctx.canvas;
   assert.pixelEqual(canvas, 170, 200, 235, 235, 235, 255, 'before: pixel top.');
   assert.pixelEqual(canvas, 170, 450, 228,  77,  38, 255, 'before: pixel bottom.');

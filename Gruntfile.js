@@ -1,3 +1,4 @@
+/*global module:false*/
 module.exports = function (grunt) {
 	grunt.loadNpmTasks('grunt-contrib-jshint');
 	grunt.loadNpmTasks('grunt-contrib-qunit');
@@ -5,7 +6,7 @@ module.exports = function (grunt) {
 	grunt.initConfig({
 		jshint: {
       options: {
-        jshintrc: ".jshintrc"
+        jshintrc: '.jshintrc'
       },
 			all: ['*.js', 'test/*.js']
 		},
