@@ -7,7 +7,7 @@ http://stackoverflow.com/questions/9972049/cross-origin-data-in-html5-canvas
 **/
 
 (function() {
-  "use strict";
+  'use strict';
 
   // polyfill typed array
   // --------------------------
@@ -25,7 +25,7 @@ http://stackoverflow.com/questions/9972049/cross-origin-data-in-html5-canvas
     if ( ! ( this instanceof CanvasFilter ) )
       return new CanvasFilter(context);
 
-    var context = context || document.createElement('canvas').getContext('2d');
+    context = context || document.createElement('canvas').getContext('2d');
     if ( context instanceof HTMLCanvasElement )
       context = context.getContext('2d');
 
@@ -199,10 +199,11 @@ http://stackoverflow.com/questions/9972049/cross-origin-data-in-html5-canvas
       return this;
     },
     threshold: function(threshold, high, low) {
+      high = high || 255;
+      low = low || 0;
+
       var pixels = this.getPixels(),
           output = this._.createImageData(pixels.width, pixels.height),
-          high = high || 255,
-          low = low || 0,
           pdata = pixels.data,
           idata = output.data;
 
@@ -251,9 +252,9 @@ http://stackoverflow.com/questions/9972049/cross-origin-data-in-html5-canvas
               dstOff = ( y * w + x ) * 4,
               srcOff = ( sy * sw + sx ) * 4;
 
-          if ( pdata[srcOff] == 0 ) {
-            if ( pdata[(sy*sw+Math.max(0,sx-1))*4] == 0 &&
-                 pdata[(Math.max(0,sy-1)*sw+sx)*4] == 0) {
+          if ( pdata[srcOff] === 0 ) {
+            if ( pdata[(sy*sw+Math.max(0,sx-1))*4] === 0 &&
+                 pdata[(Math.max(0,sy-1)*sw+sx)*4] === 0) {
               v = 255;
             }
           } else {
@@ -272,10 +273,10 @@ http://stackoverflow.com/questions/9972049/cross-origin-data-in-html5-canvas
     },
     //TODO: performance issue...
     distortSine: function(amount, yamount) {
-      var amount = amount || 0.5,
-          yamount = yamount || amount,
+      amount = amount || 0.5;
+      yamount = yamount || amount;
 
-          pixels = this.getPixels(),
+      var pixels = this.getPixels(),
           output = this._.createImageData(pixels.width, pixels.height),
           idata = output.data,
 
@@ -483,14 +484,13 @@ console.info(output)
     }
     */
     gaussianBlur: function(diameter) {
-      var diameter = Math.abs(diameter || 10);
+      diameter = Math.abs(diameter || 10);
 
       if (diameter <= 1)
         return this;
       //  return this.identity();
 
-      var pixels = this.getPixels(),
-          radius = diameter / 2;
+      var radius = diameter / 2,
           len = Math.ceil(diameter) + ( 1 - ( Math.ceil(diameter) % 2 ) ),
           weights = new Float32Array(len),
           rho = ( radius + 0.5 ) / 3,
@@ -507,7 +507,7 @@ console.info(output)
         weights[i] = gx;
         wsum += gx;
       }
-      for ( var i = 0; i < weights.length; i++) {
+      for ( i = 0; i < weights.length; i++) {
         weights[i] /= wsum;
       }
       //return Filters.separableConvolve(pixels, weights, weights, false);
@@ -528,7 +528,7 @@ console.info(output)
       if ( object instanceof HTMLImageElement )
         other = object.toCanvas(true).getContext('2d');
       else if ( object instanceof HTMLCanvasElement )
-        other = obejct.getContext('2d');
+        other = object.getContext('2d');
       else if ( object instanceof CanvasFilter )
         other = object._;
       else if ( object instanceof CanvasRenderingContext2D )
@@ -577,7 +577,7 @@ console.info(output)
           _this.putImageData(output, 0, 0);
           return _this.filter;
         },
-        multiply: function(above) {
+        multiply: function() {
           var a = get.above.data, b = get.below.data,
               f = 1/255;
 
@@ -664,7 +664,7 @@ console.info(output)
     //this.__proto__ = new Uint8Array(256);
     Object.setPrototypeOf(this, new Uint8Array(256));
     var _this = this;
-    Object.defineProperty(this, "length", {
+    Object.defineProperty(this, 'length', {
       get: function() { return _this.__proto__.length; },
       writeable: false,
       readable: true,
@@ -676,7 +676,7 @@ console.info(output)
     //TypeError: Constructor Uint8Array requires 'new'
     //Uint8Arra.apply(this, arguments);
 
-    Object.defineProperty(this, "parent", {
+    Object.defineProperty(this, 'parent', {
       value: parent,
       writeable: false,
       readable: true,
@@ -727,28 +727,28 @@ console.info(output)
     //TypeError: Constructor Uint8Array requires 'new'
     //Uint8Arra.apply(this, arguments);
 
-    Object.defineProperty(this, "_", {
+    Object.defineProperty(this, '_', {
       value: context,
       writeable: false,
       readable: true,
       enumerable: true
     });
-    Object.defineProperty(this, "r", {
+    Object.defineProperty(this, 'r', {
       get: function() { return r; },
       set: function(value) { if ( value instanceof ColorMap ) r = value; },
       enumerable: true
     });
-    Object.defineProperty(this, "g", {
+    Object.defineProperty(this, 'g', {
       get: function() { return g; },
       set: function(value) { if ( value instanceof ColorMap ) g = value; },
       enumerable: true
     });
-    Object.defineProperty(this, "b", {
+    Object.defineProperty(this, 'b', {
       get: function() { return r; },
       set: function(value) { if ( value instanceof ColorMap ) b = value; },
       enumerable: true
     });
-    Object.defineProperty(this, "a", {
+    Object.defineProperty(this, 'a', {
       get: function() { return a; },
       set: function(value) { if ( value instanceof ColorMap ) a = value; },
       enumerable: true
@@ -802,7 +802,7 @@ console.info(output)
   HTMLCanvasElement.prototype.getContext = (function(_super) {
     return function(type) {
       var context = _super.apply(this, arguments);
-      if ( type == '2d' )
+      if ( type === '2d' )
         context.filter = new CanvasFilter(context);
 
       return context;
