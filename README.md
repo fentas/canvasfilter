@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/fentas/canvasfilter.svg?branch=master)](https://travis-ci.org/fentas/canvasfilter)
+
 # canvasfilter.js
 Mainly this library extends the canvas context object (CanvasRenderingContext2D)
 with image processing filters. It aims to make it easy and strait forward to
@@ -26,10 +28,10 @@ http://caniuse.com/#search=canvas
 Personally I tested it on FireFox (31) and Chrome (37 ~ beta).
 
 ## Planed in near future
-1. Setting up test environment. (e.g. travis-ci, browser testing etc.)
-2. Create examples and demo page.
-3. Of course bug fixing, improvements and extending.
-4. Maybe make it ready for nodejs environment.
+- [x] Setting up test environment. (e.g. travis-ci, browser testing etc.)
+- [ ] Create examples and demo page.
+- [ ] Of course bug fixing, improvements and extending.
+- [ ] Maybe make it ready for nodejs environment.
 
 ## Getting Started
 Just download and use it. Or you can use bower.
