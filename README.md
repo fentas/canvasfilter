@@ -222,7 +222,16 @@ canvas.filter.blend(ctx.clone().filter.grayscale().flipVertical()).darken();
 
 > Restores the image data to its original data.
 
-## Donation
+## Side notes
+If you plan to tinker around with images stored somewhere other then your server
+be aware that this could resolve into following error:
+
+> SecurityError: Failed to execute 'getImageData' on 'CanvasRenderingContext2D': The canvas has been tainted by cross-origin data.
+
+If you have access to this particular server you could solve this
+[like this](http://stackoverflow.com/questions/9972049/cross-origin-data-in-html5-canvas).
+
+## Donations
 Please help me to finance my every cup of tea. Every coin is appreciated.
 
 ```

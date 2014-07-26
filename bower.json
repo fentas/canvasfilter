@@ -17,6 +17,7 @@
   "ignore": [
     "/*",
     "!/canvasfilter.js",
+    "!/README.md",
     "!/LICENSE"
   ],
   "devDependencies": {

@@ -1,9 +1,6 @@
 /**
-* Copyright (c) 2014 everyone who cares Authors. All rights reserved.
+* Copyright (c) 2014 Jan Guth <jan.guth@gmail.com> (http://jan.guth.so). All rights reserved.
 * GPLv2 Licence.
-
-SecurityError: Failed to execute 'getImageData' on 'CanvasRenderingContext2D': The canvas has been tainted by cross-origin data.
-http://stackoverflow.com/questions/9972049/cross-origin-data-in-html5-canvas
 **/
 
 (function() {
