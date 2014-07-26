@@ -183,7 +183,8 @@ There are some extension to some of the HTML dom objects to make the
 workflow more convenient.
 
 #### HTMLImageElement
-- `HTMLCanvasElement *.toCanvas([keep])`
+- `HTMLCanvasElement *.toCanvas([keep, [complete]])`
+- `HTMLCanvasElement *.toCanvas([complete])`
 
 > Converts _img_ to _canvas_ with the image data.
 
@@ -192,8 +193,21 @@ workflow more convenient.
   > If *true* img tag will not be replace instead it just returns the canvas
   > tag/object.
 
+  `complete` _default: funcion() {}_
+
+  > Use this if you are not sure if the given image is not completely loaded.
+  > If the image is __not loaded__ this method will __return null__ because
+  > there is nothing to replace. The scope of the function will point to the
+  > created canvas object (`this instanceof HTMLCanvasElement`).
+  ```js
+  document.querySelector('img').toCanvas(function() {
+    // makes sure image is completely loaded
+    this.filter.grayscale();
+  }
+  ```
+
 #### HTMLCanvasElement
-- `HTMLImageElement *.toImage([keep], [type], [args])`
+- `HTMLImageElement *.toImage([keep, [type, [args]]])`
 
 > Converts _canvas_ to _image_ with canvas image data. Basically it uses canvas
 > image data url.

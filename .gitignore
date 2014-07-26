@@ -22,7 +22,6 @@ nbproject
 # bower
 ############################
 bower_components
-/assets/components
 
 ############################
 # Other

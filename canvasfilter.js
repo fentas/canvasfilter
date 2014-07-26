@@ -822,18 +822,29 @@ console.info(output)
 
   // replace image tag (img) with canvas and draw current image
   // note: security issue - if you have no right to access image
-  HTMLImageElement.prototype.toCanvas = function(keep) {
+  HTMLImageElement.prototype.toCanvas = function(keep, complete) {
+    complete = ( typeof keep === 'function' )? keep : complete || function() {};
+    keep = ( typeof keep === 'function' ) ? null : keep;
+    // make sure image is loaded before converting
+    if ( ! this.complete ) {
+      this.addEventListener('load', this.toCanvas.bind(this, keep, complete));
+      return null;
+    }
+
     var canvas = document.createElement('canvas');
     canvas.width = this.width;
     canvas.height = this.height;
     canvas.getContext('2d').drawImage(this, 0, 0);
 
     // if there is no parent (DOM) there is nothing to replace
-    if ( keep || this.parentElement === null ) {
-      return canvas;
+    // NOTE: #shadowdom parent is also null
+    if ( ! keep && this.parentElement !== null ) {
+      this.parentElement.replaceChild(canvas, this);
     }
-    this.parentElement.replaceChild(canvas, this);
-    return canvas;
+
+    try {
+      return canvas;
+    } finally { complete.apply(canvas); }
   };
 
   /*
