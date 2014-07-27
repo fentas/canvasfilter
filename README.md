@@ -189,7 +189,7 @@ lut.g.invert().apply()
 
 ### Other useful extensions
 There are some extension to some of the HTML dom objects to make the
-workflow more convenient.
+workflow more convenient. 
 
 #### HTMLImageElement
 - `HTMLCanvasElement *.toCanvas([keep, [complete]])`

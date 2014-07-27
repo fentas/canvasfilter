@@ -569,7 +569,7 @@ console.info(output)
           dy = pixels.height - object.height;
           sy = sy < 0 ? Math.abs(dy) / 2 : 0;
           dh = sh = sy > 0 ? object.height - sy : object.height;
-          dy = dy > 0 ? dy / 2 : 0;
+          dy = dy > 0 ? dy / 2 : 0; 
       }
       other.drawImage(object, sx, sy, sw, sh, dx, dy, dw, dh);
 
