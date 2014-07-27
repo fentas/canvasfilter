@@ -806,6 +806,22 @@ console.info(output)
     };
   })(HTMLCanvasElement.prototype.getContext);
 
+  HTMLCanvasElement.prototype.cloneNode = (function(_super) {
+    return function(deepClone, context) {
+      var canvas = _super.apply(this, arguments);
+      if ( deepClone ) {
+        switch ( context ) {
+          case '3d':
+            //TODO: 3d context clone. if possible
+            break;
+          default:
+            canvas.getContext('2d').drawImage(this, 0, 0);
+        }
+      }
+      return canvas;
+    };
+  })(HTMLCanvasElement.prototype.cloneNode);
+
   HTMLCanvasElement.prototype.toImage = function(keep) {
     var img = document.createElement('img');
     img.width = this.width;

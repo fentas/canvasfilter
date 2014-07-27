@@ -222,6 +222,19 @@ workflow more convenient.
   > More info:
   > https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement#toDataURL
 
+- `HTMLCanvasElement *.cloneNode([deepClone, [context]])`
+
+> This extends the given `cloneNode`.
+
+  `deepClone` _default: false_
+
+  > If *true* it clones also the old image data instead of cloning only the
+  > canvas element.
+
+  `context` _default: '2d'_
+
+  > What kind of context should be cloned. At the moment only '2d' is supported.
+
 #### CanvasRenderingContext2D
 - `CanvasRenderingContext2D *.clone()`
 
@@ -252,8 +265,8 @@ Please help me to finance my every cup of tea. Every coin is appreciated.
 Sick of tea? That’s like being sick of *breathing*! - Uncle Iroh
 ```
 
-Bitcoin address: `197EypPopXtDPFK6rEbCw6XDEaxjTKP58S`
+[`197EypPopXtDPFK6rEbCw6XDEaxjTKP58S` -- bitcoin](http://en.wikipedia.org/wiki/Bitcoin)
 
-PayPal: `jan.guth@gmail.com`
+[`jan.guth@gmail.com` -- paypal](https://www.paypal.com/us/webapps/mpp/home)
 
 [Or just `flattr`  me.](https://flattr.com/submit/auto?user_id=jguth&url=https://github.com/fentas)
