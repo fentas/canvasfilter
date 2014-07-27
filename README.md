@@ -103,26 +103,29 @@ ctx.filter // << here is the image processing collection. ~ CanvasFilter
 - `CanvasFilter *.gaussianBlur()`
 
 ###### Blending methods.
-This enables you to blend two or more images together.
-First call `*.blend(object[, above])`.
+This enables you to blend two images together.
+First call `*.blend(object[, scaling[, above]])`.
 
-`object`
+  `object`
 
-> Any image object like
-> * HTMLImageElement
-> * HTMLCanvasElement
-> * CanvasRenderingContext2D
-> * CanvasFilter
+  > Any image object like
+  > * HTMLImageElement
+  > * HTMLCanvasElement
+  > * CanvasRenderingContext2D
+  > * CanvasFilter
 
-`above` _default: false_
+  `scaling` _default: center_
 
-> Whether the given image should be above or below of the other image.
+  > The method how the `object` image will overlay the given image.
+  > - **center**
+  > - **stretch**
+  > - **fit** not implemented yet
 
-One example for this:
-```js
-var ctx = canvas.getContext('2d');
-ctx.filter.blend(document.querySelector('img')).sub();
-```
+  `above` _default: false_
+
+  > Whether the given image should be above or below of the other image.
+
+Next there are several methods available how to blend both images together.
 
 - `CanvasFilter *.blend([...]).darken()`
 - `CanvasFilter *.blend([...]).lighten()`
@@ -131,6 +134,12 @@ ctx.filter.blend(document.querySelector('img')).sub();
 - `CanvasFilter *.blend([...]).add()`
 - `CanvasFilter *.blend([...]).sub()`
 - `CanvasFilter *.blend([...]).difference()`
+
+One example for this:
+```js
+var ctx = canvas.getContext('2d');
+ctx.filter.blend(document.querySelector('img')).sub();
+```
 
 ###### Look Up Table (LUT). [?](http://microscopy.berkeley.edu/courses/dib/sections/03IPII/)
 This gives the functionality to use LUTs. For this there exists a separate

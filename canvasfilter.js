@@ -520,16 +520,15 @@ console.info(output)
 
     // blending stuff
     // --------------------------
-    blend: function(object, above) {
-      var other = null;
+    blend: function(object, scaling, above) {
       if ( object instanceof HTMLImageElement )
-        other = object.toCanvas(true).getContext('2d');
-      else if ( object instanceof HTMLCanvasElement )
-        other = object.getContext('2d');
+        object = object.toCanvas(true);//.getContext('2d');
       else if ( object instanceof CanvasFilter )
-        other = object._;
+        object = object._.canvas;
       else if ( object instanceof CanvasRenderingContext2D )
-        other = object;
+        object = object.canvas;
+      else if ( object instanceof HTMLCanvasElement )
+        object = object;//.getContext('2d');
       else
         throw Error('[canvasfilter.filter.blend] missing other context');
 
@@ -537,15 +536,42 @@ console.info(output)
           pixels = this.getPixels(),
           output = _this.createImageData(pixels.width, pixels.height),
           oData = output.data,
-          get = {};
+          get = {},
+
+          other = _this.canvas.cloneNode().getContext('2d'),
+          dx, dy, dw, dh, sx, sy, sw, sh;
 
       Object.defineProperty(get, 'below', {
-        get: function() { return (above ? other : _this).getImageData(0, 0, _this.canvas.width, _this.canvas.height); }
+        get: function() { return this.getImageData(0, 0, this.canvas.width, this.canvas.height); }.bind(above ? other : _this)
       });
       Object.defineProperty(get, 'above', {
-        get: function() { return (above ? _this : other).getImageData(0, 0, _this.canvas.width, _this.canvas.height); }
+        get: function() { return this.getImageData(0, 0, this.canvas.width, this.canvas.height); }.bind(above ? _this : other)
       });
 
+      switch ( scaling ) {
+        case 'fit':
+          //TODO: [blend] scaling - implement fit
+          break;
+        case 'stretch':
+          dx = dy = sx = sy = 0;
+          sw = object.width;
+          sh = object.height;
+          dw = pixels.width;
+          dh = pixels.height;
+          break;
+        // center
+        default:
+          dx = pixels.width - object.width;
+          sx = dx < 0 ? Math.abs(dx) / 2 : 0;
+          dw = sw = sx > 0 ? object.width - sx : object.width;
+          dx = dx > 0 ? dx / 2 : 0;
+
+          dy = pixels.height - object.height;
+          sy = sy < 0 ? Math.abs(dy) / 2 : 0;
+          dh = sh = sy > 0 ? object.height - sy : object.height;
+          dy = dy > 0 ? dy / 2 : 0;
+      }
+      other.drawImage(object, sx, sy, sw, sh, dx, dy, dw, dh);
 
       return {
         darken: function() {
@@ -850,6 +876,7 @@ console.info(output)
     var canvas = document.createElement('canvas');
     canvas.width = this.width;
     canvas.height = this.height;
+    //canvas.src = this.src;
     canvas.getContext('2d').drawImage(this, 0, 0);
 
     // if there is no parent (DOM) there is nothing to replace
