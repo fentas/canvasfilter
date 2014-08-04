@@ -6,7 +6,7 @@
   "authors": [
     "Jan Guth <jan.guth@gmail.com> (http://jan.guth.so)"
   ],
-  "license": "GPL-2.0+",
+  "license": "AGPL-3.0+",
 
   "main": "canvasfilter.js",
   "repository": {
